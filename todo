@@ -6,16 +6,36 @@
 
 * TODO iplc-sim.c:/^iplc_sim_trap_address\(/
 
+verifies the cache integrity, and determine hit or miss
+
 * TODO iplc-sim.c:/^iplc_sim_push_pipeline_stage\(/
+
+record some statistics here and possibly in the functions below;
 
 * TODO iplc-sim.c:/^iplc_sim_process_pipeline_lw\(/
 
+for load-use data hazards, bubble then forward from MEM
+handle caching for if we miss
+
 * TODO iplc-sim.c:/^iplc_sim_process_pipeline_sw\(/
+
+one bubble to let MEM and WRITEBACK flush properly
+any other data hazard is handled by other instructions
 
 * TODO iplc-sim.c:/^iplc_sim_process_pipeline_branch\(/
 
+check the predictor variable /branch_predict.*/, and bubble if we're wrong
+
 * TODO iplc-sim.c:/^iplc_sim_process_pipeline_jump\(/
+
+just load the address and go
 
 * TODO iplc-sim.c:/^iplc_sim_process_pipeline_syscall\(/
 
+ask in class what we're meant to do with the syscall interrupt
+
 * TODO iplc-sim.c:/^iplc_sim_process_pipeline_nop\(/
+
+just go
+
+* NOTES
