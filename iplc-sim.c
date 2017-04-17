@@ -23,8 +23,8 @@ typedef unsigned char byte;
 void iplc_sim_init(int index, int blocksize, int assoc);
 
 // Cache simulator functions
-void iplc_sim_LRU_replace_on_miss(int index, int tag);
-void iplc_sim_LRU_update_on_hit(int index, int assoc);
+void iplc_sim_LRU_replace_on_miss(int index, int tag, int assoc_entry);
+void iplc_sim_LRU_update_on_hit(int index, int assoc_entry);
 int iplc_sim_trap_address(uint address);
 
 // Pipeline functions
@@ -50,9 +50,17 @@ typedef struct cache_line
 	// a tag
 	// a method for handling varying levels of associativity
 	// a method for selecting which item in the cache is going to be replaced
+	int valid;
+	uint tag;
+	struct cache_line *lru_prev, *lru_next;
 } cache_line_t;
 
-cache_line_t *cache=NULL;
+typedef struct cache_set
+{
+	cache_line_t *lines, *lru_head, *lru_tail; // When cache set is full (all valid bits in lines are set), dump tail from cache
+} cache_set_t;
+
+cache_set_t *cache=NULL;
 int cache_index=0;
 int cache_blocksize=0;
 int cache_blockoffsetbits = 0;
@@ -151,6 +159,8 @@ iplc_sim_init(int index, int blocksize, int assoc)
 	
 	
 	cache_blockoffsetbits =
+	//log(x)/log(2) = log_2(x)
+	//                        word_count * 4 bytes/word
 	(int) rint((log( (double) (blocksize * 4) )/ log(2)));
 	/* Note: rint function rounds the result up prior to casting */
 	
@@ -168,26 +178,67 @@ iplc_sim_init(int index, int blocksize, int assoc)
 		exit(-1);
 	}
 	
-	cache = (cache_line_t *) malloc((sizeof(cache_line_t) * 1<<index));
+	cache = (cache_set_t*) malloc(sizeof(cache_set_t) * (1<<index));
 	
 	// Dynamically create our cache based on the information the user entered
-	for(i = 0; i < (1<<index); i++);
+	for(i = 0; i < (1<<index); ++i)
+	{
+		cache[i].lines = (cache_line_t*) malloc(sizeof(cache_line_t) * assoc);
+		cache[i].lru_head = cache[i].lru_tail = &cache[i].lines[0];
+		for (j = 0; j < assoc; ++j)
+		{
+			cache[i].lines[j].valid = 0;
+			cache[i].lines[j].tag = 0;
+			cache[i].lines[j].lru_prev = cache[i].lines[j].lru_next = NULL;
+		}
+	}
 	
 	// init the pipeline -- set all data to zero and instructions to NOP
-	for(i = 0; i < MAX_STAGES; i++){
+	for(i = 0; i < MAX_STAGES; ++i)
+	{
 		// itype is set to O which is NOP type instruction
 		bzero(&(pipeline[i]), sizeof(pipeline_t));
 	}
 }
 
 /*
- * iplc_sim_trap_address() determined this is not in our cache.  Put it there
+ * iplc_sim_trap_address() determined this is not in our cache. Put it there
  * and make sure that is now our Most Recently Used (MRU) entry.
  */
 void
-iplc_sim_LRU_replace_on_miss(int index, int tag)
+iplc_sim_LRU_replace_on_miss(int index, int assoc_entry, int tag)
 {
-	/* You must implement this function  */
+	// assoc != -1 means filling an unused slot
+	// assoc == -1 means replacing old data
+	// printf("Grabbing index %d (tag %d, assoc %d)\n", index, tag, assoc_entry);
+	cache_line_t* line=NULL;
+	if (assoc_entry == -1)
+	{
+		// No more unused space. Replace the oldest entry
+		line = cache[index].lru_tail;
+		if (line->lru_next)
+		{
+			// Keep tail valid if >1-way associative
+			cache[index].lru_tail = line->lru_next;
+			cache[index].lru_tail->lru_prev = NULL;
+		}
+	}
+	else
+	{
+		// Unused space at assoc_entry (determined by trap_address)
+		line = &cache[index].lines[assoc_entry];
+	}
+
+	line->valid = 1;
+	line->tag = tag;
+
+	if (line != cache[index].lru_head)
+	{
+		cache[index].lru_head->lru_next = line;
+		line->lru_prev = cache[index].lru_head;
+		line->lru_next = NULL;
+		cache[index].lru_head = line;
+	}
 }
 
 /*
@@ -197,7 +248,33 @@ iplc_sim_LRU_replace_on_miss(int index, int tag)
 void
 iplc_sim_LRU_update_on_hit(int index, int assoc_entry)
 {
-	/* You must implement this function  */
+	printf("Updating index %d (assoc %d)\n", index, assoc_entry);
+	cache_line_t* line = &cache[index].lines[assoc_entry];
+
+	if (line->lru_next) // Not the head, and cache_assoc > 1
+	{
+		line->lru_next->lru_prev = line->lru_prev;
+
+		if (line->lru_prev)
+		{
+			line->lru_prev->lru_next = line->lru_next;
+		}
+		else
+		{
+			// It's the tail, and not the head (meaning we should set tail to the next entry before we leave)
+			cache[index].lru_tail = line->lru_next;
+			cache[index].lru_tail->lru_prev = NULL;
+		}
+
+		// Make this the head
+		cache[index].lru_head->lru_next = line;
+		line->lru_prev = cache[index].lru_head;
+		line->lru_next = NULL;
+		cache[index].lru_head = line;
+	}
+
+	// Nothing to be done if this entry is already the head
+	
 }
 
 /*
@@ -211,12 +288,40 @@ iplc_sim_trap_address(uint address)
 {
 	int i=0, index=0;
 	int tag=0;
-	int hit=0;
 	
-	// Call the appropriate function for a miss or hit
+	uint mask = (1 << cache_index) - 1; // Mask to get the index bits from the address
+	uint non_tag_bits = cache_blockoffsetbits + cache_index;
 
-	/* expects you to return 1 for hit, 0 for miss */
-	return hit;
+	index = address & mask; // Extract the least significant bits
+	mask = ((1 << (33 - non_tag_bits)) - 1) << non_tag_bits; // Invert the mask and account for to get the most significant bits
+	tag = address & mask; // Extract the most significant bits
+
+	++cache_access;
+	for (; i < cache_assoc; ++i)
+	{
+		if (cache[index].lines[i].valid)
+		{
+			if (cache[index].lines[i].tag == tag)
+			{
+				// HIT!
+				++cache_hit;
+				iplc_sim_LRU_update_on_hit(index, i);
+				return 1;
+			}
+		}
+		else
+		{
+			// Stop searching; it's not here
+			++cache_miss;
+			iplc_sim_LRU_replace_on_miss(index, i, tag);
+			return 0;
+		}
+	}
+
+	// Out of space! Replace the oldest
+	++cache_miss;
+	iplc_sim_LRU_replace_on_miss(index, -1, tag);
+	return 0;
 }
 
 /*
@@ -546,7 +651,7 @@ main()
 	int index = 10;
 	int blocksize = 1;
 	int assoc = 1;
-	
+
 	printf("Please enter the tracefile: ");
 	scanf("%s", trace_file_name);
 	
