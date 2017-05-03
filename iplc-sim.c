@@ -420,13 +420,23 @@ iplc_sim_push_pipeline_stage()
 	 *	add delay cycles if needed.
 	 */
 	if(pipeline[MEM].itype == LW){
-		int inserted_nop = 0;
-		//TODO
+		if (iplc_sim_trap_address(pipeline[MEM].stage.lw.data_address))
+			pipeline_cycles += CACHE_MISS_DELAY;
+		else if (pipeline[ALU].itype == SW && pipeline[ALU].stage.sw.data_address == pipeline[MEM].stage.lw.data_address)
+			pipeline_cycles++;
+		else if (pipeline[ALU].itype == RTYPE) {
+			if (pipeline[MEM].stage.rtype.reg1 == pipeline[MEM].stage.lw.data_address)
+				pipeline_cycles++;
+			else if (strncmp(pipeline[MEM].stage.rtype.instruction, "addi", 4) != 0 && strncmp(pipeline[MEM].stage.rtype.instruction, "ori", 3) != 0 && strncmp(pipeline[MEM].stage.rtype.instruction, "sll", 3) != 0)
+				if (pipeline[MEM].stage.rtype.reg2_or_constant == pipeline[MEM].stage.lw.data_address)
+					pipeline_cycles++;
+		}
 	}
 	
 	/* 4. Check for SW mem access and data miss .. add delay cycles if needed */
 	if(pipeline[MEM].itype == SW){
-		//TODO
+		if (iplc_sim_trap_address(pipeline[MEM].stage.sw.data_address))
+			pipeline_cycles += CACHE_MISS_DELAY;
 	}
 	
 	/* 5. Increment pipe_cycles 1 cycle for normal processing */
@@ -520,22 +530,6 @@ iplc_sim_process_pipeline_syscall()
 
 	pipeline[FETCH].itype = SYSCALL;
 	pipeline[FETCH].instruction_address = instruction_address;
-
-	/*
-	* How to handle a syscall instruction?
-	*
-	*
-	*
-	*
-	*
-	*
-	*
-	*
-	*
-	*
-	*
-	*
-	*/
 }
 
 void
