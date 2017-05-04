@@ -396,6 +396,7 @@ iplc_sim_push_pipeline_stage()
 {
 	int i;
 	int data_hit=1;
+	int cycle_count=1;
 	
 	/* 1. Count WRITEBACK stage is "retired" -- This I'm giving you */
 	if(pipeline[WRITEBACK].instruction_address){
@@ -414,33 +415,36 @@ iplc_sim_push_pipeline_stage()
 			// if (debug)
 				printf("DEBUG: Branch Taken: FETCH addr = 0x%x, DECODE instr addr = 0x%x \n", pipeline[FETCH].instruction_address, pipeline[DECODE].instruction_address);
 		}
+		else
+			cycle_count = 2;
 	}
 	
 	/* 3. Check for LW delays due to use in ALU stage and if data hit/miss
 	 *	add delay cycles if needed.
 	 */
 	if(pipeline[MEM].itype == LW){
-		if (iplc_sim_trap_address(pipeline[MEM].stage.lw.data_address))
-			pipeline_cycles += CACHE_MISS_DELAY;
-		else if (pipeline[ALU].itype == SW && pipeline[ALU].stage.sw.data_address == pipeline[MEM].stage.lw.data_address)
-			pipeline_cycles++;
-		else if (pipeline[ALU].itype == RTYPE) {
-			if (pipeline[MEM].stage.rtype.reg1 == pipeline[MEM].stage.lw.data_address)
-				pipeline_cycles++;
-			else if (strncmp(pipeline[MEM].stage.rtype.instruction, "addi", 4) != 0 && strncmp(pipeline[MEM].stage.rtype.instruction, "ori", 3) != 0 && strncmp(pipeline[MEM].stage.rtype.instruction, "sll", 3) != 0)
-				if (pipeline[MEM].stage.rtype.reg2_or_constant == pipeline[MEM].stage.lw.data_address)
-					pipeline_cycles++;
+		if (!iplc_sim_trap_address(pipeline[MEM].stage.lw.data_address)) {
+			cycle_count = CACHE_MISS_DELAY;
+			printf("DATA MISS:\t Address 0x%x\n", pipeline[MEM].stage.lw.data_address);
 		}
+		else printf("DATA HIT:\t Address 0x%x\n", pipeline[MEM].stage.lw.data_address);
+		/*if (pipeline[ALU].itype == RTYPE) {
+			if (pipeline[MEM].stage.lw.dest_reg == pipeline[ALU].stage.rtype.reg2_or_constant)
+				pipeline_cycles++;
+		}*/
 	}
 	
 	/* 4. Check for SW mem access and data miss .. add delay cycles if needed */
 	if(pipeline[MEM].itype == SW){
-		if (iplc_sim_trap_address(pipeline[MEM].stage.sw.data_address))
-			pipeline_cycles += CACHE_MISS_DELAY;
+		if (!iplc_sim_trap_address(pipeline[MEM].stage.sw.data_address)) {
+			cycle_count = CACHE_MISS_DELAY;
+			printf("DATA MISS:\t Address 0x%x\n", pipeline[MEM].stage.sw.data_address);
+		}
+		else printf("DATA HIT:\t Address 0x%x\n", pipeline[MEM].stage.sw.data_address);
 	}
 	
 	/* 5. Increment pipe_cycles 1 cycle for normal processing */
-	pipeline_cycles++;
+	pipeline_cycles += cycle_count;
 
 	/* 6. push stages thru MEM->WB, ALU->MEM, DECODE->ALU, FETCH->DECODE */
 	pipeline[WRITEBACK] = pipeline[MEM];
