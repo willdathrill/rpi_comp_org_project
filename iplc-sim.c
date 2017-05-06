@@ -1,15 +1,17 @@
 /* Pipeline Cache Simulator  */
-
-/*
-acme: Incl /usr/include Indent on Font
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
 
+/* compatibility macro */
+#define bzero(p,len) (memset((p), '\0', (len)), (void *) 0)
+
+/* constants that affect cache size,
+ * how "long" cache miss delay is,
+ * and how many stages are in our pipeline.
+ */
 enum {
 	MAX_CACHE_SIZE = 10240,
 	CACHE_MISS_DELAY = 10, // 10 cycle cache miss penalty
@@ -19,15 +21,15 @@ enum {
 typedef unsigned int uint;
 typedef unsigned char byte;
 
-// init the simulator
+/* init the simulator */
 void iplc_sim_init(int index, int blocksize, int assoc);
 
-// Cache simulator functions
+/* Cache simulator functions */
 void iplc_sim_LRU_replace_on_miss(int index, int tag, int assoc_entry);
 void iplc_sim_LRU_update_on_hit(int index, int assoc_entry);
 int iplc_sim_trap_address(uint address);
 
-// Pipeline functions
+/* Pipeline functions */
 uint iplc_sim_parse_reg(byte *reg_str);
 void iplc_sim_parse_instruction(byte *buffer);
 void iplc_sim_push_pipeline_stage();
@@ -40,24 +42,19 @@ void iplc_sim_process_pipeline_jump();
 void iplc_sim_process_pipeline_syscall();
 void iplc_sim_process_pipeline_nop();
 
-// Outout performance results
+/* Outout performance results */
 void iplc_sim_finalize();
 
-typedef struct cache_line
-{
-	// Your data structures for implementing your cache should include:
-	// a valid bit
-	// a tag
-	// a method for handling varying levels of associativity
-	// a method for selecting which item in the cache is going to be replaced
-	int valid;
-	uint tag;
-	struct cache_line *lru_prev, *lru_next;
+typedef struct cache_line{
+	int valid; /* the valid bit */
+	uint tag;  /* the tag */
+	/* the tree structure, which provides associativity */
+	struct cache_line *lru_prev, *lru_next; 
 } cache_line_t;
 
-typedef struct cache_set
-{
-	cache_line_t *lines, *lru_head, *lru_tail; // When cache set is full (all valid bits in lines are set), dump tail from cache
+/* When cache set is full (all valid bits in lines are set), dump tail from cache */
+typedef struct cache_set{
+	cache_line_t *lines, *lru_head, *lru_tail;
 } cache_set_t;
 
 cache_set_t *cache=NULL;
@@ -75,8 +72,8 @@ byte reg2[16];
 byte offsetwithreg[16];
 uint data_address=0;
 uint instruction_address=0;
-uint pipeline_cycles=0;   // how many cycles did you pipeline consume
-uint instruction_count=0; // home many real instructions ran thru the pipeline
+uint pipeline_cycles=0;   /* how many cycles did you pipeline consume */
+uint instruction_count=0; /* home many real instructions ran thru the pipeline */
 uint branch_predict_taken=0;
 uint branch_count=0;
 uint correct_branch_predictions=0;
@@ -84,67 +81,55 @@ uint correct_branch_predictions=0;
 uint debug=0;
 uint dump_pipeline=1;
 
-enum instruction_type {NOP, RTYPE, LW, SW, BRANCH, JUMP, JAL, SYSCALL};
-
-typedef struct rtype
-{
+typedef struct rtype{
 	byte instruction[16];
 	int reg1;
 	int reg2_or_constant;
 	int dest_reg;
-	
 } rtype_t;
 
-typedef struct load_word
-{
+typedef struct load_word{
 	uint data_address;
 	int dest_reg;
 	int base_reg;
-	
 } lw_t;
 
-typedef struct store_word
-{
+typedef struct store_word{
 	uint data_address;
 	int src_reg;
 	int base_reg;
 } sw_t;
 
-typedef struct branch
-{
+typedef struct branch{
 	int reg1;
-	int reg2;
-	
+	int reg2;	
 } branch_t;
 
 
-typedef struct jump
-{
+typedef struct jump{
 	byte instruction[16];
-	
 } jump_t;
 
-typedef struct pipeline
-{
+enum instruction_type {NOP, RTYPE, LW, SW, BRANCH, JUMP, JAL, SYSCALL};
+
+typedef struct pipeline{
 	enum instruction_type itype;
 	uint instruction_address;
-	union
-	{
+	union{
 		rtype_t   rtype;
 		lw_t	  lw;
 		sw_t	  sw;
 		branch_t  branch;
 		jump_t	jump;
-	}
-	stage;
-	
+	} stage;
 } pipeline_t;
 
 enum pipeline_stages {FETCH, DECODE, ALU, MEM, WRITEBACK};
 
 pipeline_t pipeline[MAX_STAGES];
 
-/* Cache Functions  */
+/* Cache Functions */
+
 /*
  * Correctly configure the cache.
  */
@@ -157,12 +142,11 @@ iplc_sim_init(int index, int blocksize, int assoc)
 	cache_blocksize = blocksize;
 	cache_assoc = assoc;
 	
-	
-	cache_blockoffsetbits =
-	//log(x)/log(2) = log_2(x)
-	//                        word_count * 4 bytes/word
-	(int) rint((log( (double) (blocksize * 4) )/ log(2)));
-	/* Note: rint function rounds the result up prior to casting */
+	/* log(x)/log(2) = log_2(x)
+	 * word_count * 4 bytes/word
+	 * Note: rint function rounds the result up prior to casting
+	 */	
+	cache_blockoffsetbits = (int) rint((log( (double) (blocksize * 4) )/ log(2)));
 	
 	cache_size = assoc * ( 1 << index ) * ((32 * blocksize) + 33 - index - cache_blockoffsetbits);
 	
@@ -173,7 +157,7 @@ iplc_sim_init(int index, int blocksize, int assoc)
 	printf("   BlockOffSetBits: %d \n", cache_blockoffsetbits );
 	printf("   CacheSize: %lu \n", cache_size );
 	
-	if(cache_size > MAX_CACHE_SIZE ){
+	if(cache_size > MAX_CACHE_SIZE){
 		printf("Cache too big. Great than MAX SIZE of %d .... \n", MAX_CACHE_SIZE);
 		exit(-1);
 	}
@@ -181,12 +165,10 @@ iplc_sim_init(int index, int blocksize, int assoc)
 	cache = (cache_set_t*) malloc(sizeof(cache_set_t) * (1<<index));
 	
 	// Dynamically create our cache based on the information the user entered
-	for(i = 0; i < (1<<index); ++i)
-	{
+	for(i = 0; i < (1<<index); ++i){
 		cache[i].lines = (cache_line_t*) malloc(sizeof(cache_line_t) * assoc);
 		cache[i].lru_head = cache[i].lru_tail = &cache[i].lines[0];
-		for (j = 0; j < assoc; ++j)
-		{
+		for(j = 0; j < assoc; ++j){
 			cache[i].lines[j].valid = 0;
 			cache[i].lines[j].tag = 0;
 			cache[i].lines[j].lru_prev = cache[i].lines[j].lru_next = NULL;
@@ -194,8 +176,7 @@ iplc_sim_init(int index, int blocksize, int assoc)
 	}
 	
 	// init the pipeline -- set all data to zero and instructions to NOP
-	for(i = 0; i < MAX_STAGES; ++i)
-	{
+	for(i = 0; i < MAX_STAGES; ++i){
 		// itype is set to O which is NOP type instruction
 		bzero(&(pipeline[i]), sizeof(pipeline_t));
 	}
@@ -208,32 +189,28 @@ iplc_sim_init(int index, int blocksize, int assoc)
 void
 iplc_sim_LRU_replace_on_miss(int index, int assoc_entry, int tag)
 {
-	// assoc != -1 means filling an unused slot
-	// assoc == -1 means replacing old data
-	// printf("Grabbing index %d (tag %d, assoc %d)\n", index, tag, assoc_entry);
+	/*
+	 * assoc != -1 means filling an unused slot
+	 * assoc == -1 means replacing old data
+	 */
 	cache_line_t* line=NULL;
-	if (assoc_entry == -1)
-	{
-		// No more unused space. Replace the oldest entry
+	if(assoc_entry == -1){
+		/* No more unused space. Replace the oldest entry */
 		line = cache[index].lru_tail;
-		if (line->lru_next)
-		{
+		if(line->lru_next){
 			// Keep tail valid if >1-way associative
 			cache[index].lru_tail = line->lru_next;
 			cache[index].lru_tail->lru_prev = NULL;
 		}
-	}
-	else
-	{
-		// Unused space at assoc_entry (determined by trap_address)
+	}else{
+		/* Unused space at assoc_entry (determined by trap_address) */
 		line = &cache[index].lines[assoc_entry];
 	}
 
 	line->valid = 1;
 	line->tag = tag;
 
-	if (line != cache[index].lru_head)
-	{
+	if(line != cache[index].lru_head){
 		cache[index].lru_head->lru_next = line;
 		line->lru_prev = cache[index].lru_head;
 		line->lru_next = NULL;
@@ -241,44 +218,37 @@ iplc_sim_LRU_replace_on_miss(int index, int assoc_entry, int tag)
 	}
 }
 
-/*
- * iplc_sim_trap_address() determined the entry is in our cache.  Update its
- * information in the cache.
+/* iplc_sim_trap_address() determines the entry is in our cache.  
+ * Update its information in the cache.
  */
 void
 iplc_sim_LRU_update_on_hit(int index, int assoc_entry)
 {
-	//printf("Updating index %d (assoc %d)\n", index, assoc_entry);
 	cache_line_t* line = &cache[index].lines[assoc_entry];
-
-	if (line->lru_next) // Not the head, and cache_assoc > 1
-	{
+	
+	/* Not the head, and cache_assoc > 1 */
+	if(line->lru_next) {
 		line->lru_next->lru_prev = line->lru_prev;
 
-		if (line->lru_prev)
-		{
+		if (line->lru_prev){
 			line->lru_prev->lru_next = line->lru_next;
-		}
-		else
-		{
-			// It's the tail, and not the head (meaning we should set tail to the next entry before we leave)
+		}else{
+			/* It's the tail, and not the head;
+			 * we should set tail to the next entry before we leave.
+			 */
 			cache[index].lru_tail = line->lru_next;
 			cache[index].lru_tail->lru_prev = NULL;
 		}
-
-		// Make this the head
+		/* Make this the head */
 		cache[index].lru_head->lru_next = line;
 		line->lru_prev = cache[index].lru_head;
 		line->lru_next = NULL;
 		cache[index].lru_head = line;
 	}
-
-	// Nothing to be done if this entry is already the head
-	
+	/* Nothing to be done if this entry is already the head */
 }
 
-/*
- * Check if the address is in our cache.  Update our counter statistics 
+/* Check if the address is in our cache.  Update our counter statistics 
  * for cache_access, cache_hit, etc.  If our configuration supports
  * associativity we may need to check through multiple entries for our
  * desired index.  In that case we will also need to call the LRU functions.
@@ -298,20 +268,15 @@ iplc_sim_trap_address(uint address)
 	printf("Address %x: Tag= %x, Index= %d \n", address, tag, index);
 
 	++cache_access;
-	for (; i < cache_assoc; ++i)
-	{
-		if (cache[index].lines[i].valid)
-		{
-			if (cache[index].lines[i].tag == tag)
-			{
+	for (; i < cache_assoc; ++i){
+		if (cache[index].lines[i].valid){
+			if (cache[index].lines[i].tag == tag){
 				// HIT!
 				++cache_hit;
 				iplc_sim_LRU_update_on_hit(index, i);
 				return 1;
 			}
-		}
-		else
-		{
+		}else{
 			// Stop searching; it's not here
 			++cache_miss;
 			iplc_sim_LRU_replace_on_miss(index, i, tag);
@@ -319,14 +284,14 @@ iplc_sim_trap_address(uint address)
 		}
 	}
 
-	// Out of space! Replace the oldest
+	/* Out of space! Replace the oldest */
 	++cache_miss;
 	iplc_sim_LRU_replace_on_miss(index, -1, tag);
 	return 0;
 }
 
-/*
- * Just output our summary statistics.
+/* iplc_sim_finalize
+ * Output the summary statistics of the simulation.
  */
 void
 iplc_sim_finalize()
@@ -387,9 +352,19 @@ iplc_sim_dump_pipeline()
 	}
 }
 
+/* test the given instruction to see if it's immeadiate */
+int
+immeadiate_instruction_p(const char *instr)
+{
+	return strncmp(instr, "addi", 4) != 0
+		&& strncmp(instr, "ori", 3) != 0
+		&& strncmp(instr, "sll", 3) != 0;
+}
+
 /*
  * Check if various stages of our pipeline require stalls, forwarding, etc.
  * Then push the contents of our various pipeline stages through the pipeline.
+ * record cycle count, correct branch predictions, and other data in execution.
  */
 void
 iplc_sim_push_pipeline_stage()
@@ -408,39 +383,39 @@ iplc_sim_push_pipeline_stage()
 	
 	/* 2. Check for BRANCH and correct/incorrect Branch Prediction */
 	if(pipeline[DECODE].itype == BRANCH){
-		int branch_taken = (pipeline[FETCH].instruction_address != pipeline[DECODE].instruction_address + 4) && (pipeline[FETCH].itype != NOP);
-		if (branch_taken == branch_predict_taken)
-		{
+		int branch_taken =
+			(pipeline[FETCH].instruction_address != pipeline[DECODE].instruction_address + 4) && (pipeline[FETCH].itype != NOP);
+		if (branch_taken == branch_predict_taken){
 			correct_branch_predictions++;
 			// if (debug)
-				printf("DEBUG: Branch Taken: FETCH addr = 0x%x, DECODE instr addr = 0x%x \n", pipeline[FETCH].instruction_address, pipeline[DECODE].instruction_address);
-		}
-		else
+				printf("DEBUG: Branch Taken: FETCH addr = 0x%x, DECODE instr addr = 0x%x \n",
+					pipeline[FETCH].instruction_address, pipeline[DECODE].instruction_address);
+		}else{
 			cycle_count = 2;
+		}
 	}
 	
+	switch(pipeline[MEM].itype){
 	/* 3. Check for LW delays due to use in ALU stage and if data hit/miss
 	 *	add delay cycles if needed.
 	 */
-	if(pipeline[MEM].itype == LW){
-		if (!iplc_sim_trap_address(pipeline[MEM].stage.lw.data_address)) {
+	case LW:
+		if(!iplc_sim_trap_address(pipeline[MEM].stage.lw.data_address)){
 			cycle_count = CACHE_MISS_DELAY;
 			printf("DATA MISS:\t Address 0x%x\n", pipeline[MEM].stage.lw.data_address);
+		}else{
+			printf("DATA HIT:\t Address 0x%x\n", pipeline[MEM].stage.lw.data_address);
 		}
-		else printf("DATA HIT:\t Address 0x%x\n", pipeline[MEM].stage.lw.data_address);
-		/*if (pipeline[ALU].itype == RTYPE) {
-			if (pipeline[MEM].stage.lw.dest_reg == pipeline[ALU].stage.rtype.reg2_or_constant)
-				pipeline_cycles++;
-		}*/
-	}
-	
+		break;
 	/* 4. Check for SW mem access and data miss .. add delay cycles if needed */
-	if(pipeline[MEM].itype == SW){
-		if (!iplc_sim_trap_address(pipeline[MEM].stage.sw.data_address)) {
+	case SW:
+		if(!iplc_sim_trap_address(pipeline[MEM].stage.sw.data_address)){
 			cycle_count = CACHE_MISS_DELAY;
 			printf("DATA MISS:\t Address 0x%x\n", pipeline[MEM].stage.sw.data_address);
+		}else{
+			printf("DATA HIT:\t Address 0x%x\n", pipeline[MEM].stage.sw.data_address);
 		}
-		else printf("DATA HIT:\t Address 0x%x\n", pipeline[MEM].stage.sw.data_address);
+		break;
 	}
 	
 	/* 5. Increment pipe_cycles 1 cycle for normal processing */
@@ -452,18 +427,19 @@ iplc_sim_push_pipeline_stage()
 	pipeline[ALU] = pipeline[DECODE];
 	pipeline[DECODE] = pipeline[FETCH];
 	
-	// 7. This is a give'me -- Reset the FETCH stage to NOP via bezero */
+	/* Reset the FETCH stage to NOP via bezero */
 	bzero(&(pipeline[FETCH]), sizeof(pipeline_t));
 }
 
 /*
- * This function is fully implemented.  You should use this as a reference
- * for implementing the remaining instruction types.
+ * Each of the iplc_sim_process_pipeline_* functions
+ * prepares the fetch stage of our pipeline with the
+ * instructions sent from iplc_sim_parse_instruction
  */
+
 void
 iplc_sim_process_pipeline_rtype(byte *instruction, int dest_reg, int reg1, int reg2_or_constant)
 {
-	/* This is an example of what you need to do for the rest  */
 	iplc_sim_push_pipeline_stage();
 	
 	pipeline[FETCH].itype = RTYPE;
@@ -519,9 +495,8 @@ iplc_sim_process_pipeline_jump(byte *instruction)
 {
 	iplc_sim_push_pipeline_stage();
 
-	if (strncmp( instruction, "jal", 3 ) == 0) pipeline[FETCH].itype = JAL;
-	else pipeline[FETCH].itype = JUMP;
-
+	/* handle both jump instructions */
+	pipeline[FETCH].itype = (strncmp(instruction, "jal", 3) == 0) ? JAL : JUMP;
 	pipeline[FETCH].instruction_address = instruction_address;
 
 	strcpy(pipeline[FETCH].stage.jump.instruction, instruction);
@@ -540,10 +515,13 @@ void
 iplc_sim_process_pipeline_nop()
 {
 	iplc_sim_push_pipeline_stage();
-	// pipeline[FETCH] already set to NOP, since it's zeroed out in iplc_sim_push_pipeline_stage
+	/*
+	pipeline[FETCH] already set to NOP,
+	since it's zeroed out in iplc_sim_push_pipeline_stage.
+	*/
 }
 
-/* parse Function  */
+/* parse functions  */
 
 /*
  * Don't touch this function.  It is for parsing the instruction stream.
