@@ -684,7 +684,7 @@ iplc_sim_parse_instruction(byte *buffer)
 }
 
 /* MAIN Function  */
-/*
+
 int
 main()
 {
@@ -722,8 +722,9 @@ main()
 	iplc_sim_finalize();
 	return 0;
 }
-*/
 
+
+/*
 int
 main(int argc, char **argv)
 {
@@ -765,3 +766,4 @@ main(int argc, char **argv)
 	iplc_sim_finalize();
 	return 0;
 }
+*/
