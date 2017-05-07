@@ -1,0 +1,21 @@
+#!/usr/bin/env rc
+
+for(blk in (1 2 4)){
+	for(asc in (1 2 4)){
+		for(tk in (0 1)){
+			echo $blk $asc
+			idx = `{sed 1q}
+			./iplc-sim $idx $blk $asc $tk >tests/out-^$idx^-^$blk^-^$asc^-^$tk
+		}
+	}
+}
+
+cd tests
+touch results
+for(f in *){
+	if(! ~ $f results){
+		echo $f >>results
+		tail -13 $f >>results
+	}
+}
+

@@ -384,15 +384,19 @@ iplc_sim_push_pipeline_stage()
 	/* 2. Check for BRANCH and correct/incorrect Branch Prediction */
 	if(pipeline[DECODE].itype == BRANCH){
 		int branch_taken =
-			(pipeline[FETCH].instruction_address != pipeline[DECODE].instruction_address + 4) && (pipeline[FETCH].itype != NOP) && branch_predict_taken; 
+			(pipeline[FETCH].instruction_address != pipeline[DECODE].instruction_address + 4) && (pipeline[FETCH].itype != NOP);
+		if(branch_taken == 1){
+			printf("DEBUG: Branch Taken: FETCH addr = 0x%x, DECODE instr addr = 0x%x \n",
+					pipeline[FETCH].instruction_address, pipeline[DECODE].instruction_address);
+		}
 		if (branch_taken == branch_predict_taken){
 			correct_branch_predictions++;
 			// if (debug)
-				printf("DEBUG: Branch Taken: FETCH addr = 0x%x, DECODE instr addr = 0x%x \n",
-					pipeline[FETCH].instruction_address, pipeline[DECODE].instruction_address);
+				
 		}else{
 			cycle_count = 2;
 		}
+		
 	}
 	
 	switch(pipeline[MEM].itype){
@@ -680,7 +684,7 @@ iplc_sim_parse_instruction(byte *buffer)
 }
 
 /* MAIN Function  */
-
+/*
 int
 main()
 {
@@ -707,6 +711,49 @@ main()
 	printf("Enter Branch Prediction: 0 (NOT taken), 1 (TAKEN): ");
 	scanf("%d", &branch_predict_taken );
 	
+	iplc_sim_init(index, blocksize, assoc);
+	
+	while(fgets(buffer, 80, trace_file) != NULL){
+		iplc_sim_parse_instruction(buffer);
+		if (dump_pipeline)
+			iplc_sim_dump_pipeline();
+	}
+	
+	iplc_sim_finalize();
+	return 0;
+}
+*/
+
+int
+main(int argc, char **argv)
+{
+	byte *trace_file_name = "instruction-trace.txt";
+	FILE *trace_file = NULL;
+	byte buffer[80];
+	int index = 10;
+	int blocksize = 1;
+	int assoc = 1;
+	/*
+	printf("Please enter the tracefile: ");
+	scanf("%s", trace_file_name);
+	*/
+	trace_file = fopen(trace_file_name, "r");
+	
+	if(!trace_file){
+		printf("fopen failed for %s file\n", trace_file_name);
+		exit(-1);
+	}
+	/*
+	printf("Enter Cache Size (index), Blocksize and Level of Assoc \n");
+	scanf( "%d %d %d", &index, &blocksize, &assoc );
+	
+	printf("Enter Branch Prediction: 0 (NOT taken), 1 (TAKEN): ");
+	scanf("%d", &branch_predict_taken );
+	*/
+	index = atoi(argv[1]);
+	blocksize = atoi(argv[2]);
+	assoc = atoi(argv[3]);
+	branch_predict_taken = atoi(argv[4]);
 	iplc_sim_init(index, blocksize, assoc);
 	
 	while(fgets(buffer, 80, trace_file) != NULL){

@@ -1,252 +1,252 @@
-out-1-1-nt.txt
+out-4-2-4-0
  Cache Performance 
 	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 17190 
-	 Number of Cache Hits is 18673 
-	 Cache Miss Rate is 0.479324 
+	 Number of Cache Misses is 200 
+	 Number of Cache Hits is 35663 
+	 Cache Miss Rate is 0.005577 
 
 Pipeline Performance 
-	 Total Cycles is 189468 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 7044 
-	 CPI is 5.452003 
-
-out-1-1-taken.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 17190 
-	 Number of Cache Hits is 18673 
-	 Cache Miss Rate is 0.479324 
-
-Pipeline Performance 
-	 Total Cycles is 196512 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 0 
-	 CPI is 5.654696 
-
-out-1-2-nt.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 15472 
-	 Number of Cache Hits is 20391 
-	 Cache Miss Rate is 0.431420 
-
-Pipeline Performance 
-	 Total Cycles is 174006 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 7044 
-	 CPI is 5.007079 
-
-out-1-2-taken.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 15472 
-	 Number of Cache Hits is 20391 
-	 Cache Miss Rate is 0.431420 
-
-Pipeline Performance 
-	 Total Cycles is 181050 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 0 
-	 CPI is 5.209772 
-
-out-1-4-nt.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 9794 
-	 Number of Cache Hits is 26069 
-	 Cache Miss Rate is 0.273095 
-
-Pipeline Performance 
-	 Total Cycles is 123999 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 5949 
-	 CPI is 3.568111 
-
-out-1-4-taken.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 9794 
-	 Number of Cache Hits is 26069 
-	 Cache Miss Rate is 0.273095 
-
-Pipeline Performance 
-	 Total Cycles is 128853 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 1095 
-	 CPI is 3.707787 
-
-out-2-1-nt.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 8998 
-	 Number of Cache Hits is 26865 
-	 Cache Miss Rate is 0.250899 
-
-Pipeline Performance 
-	 Total Cycles is 116953 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 5831 
-	 CPI is 3.365360 
-
-out-2-1-taken.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 8998 
-	 Number of Cache Hits is 26865 
-	 Cache Miss Rate is 0.250899 
-
-Pipeline Performance 
-	 Total Cycles is 121571 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 1213 
-	 CPI is 3.498245 
-
-out-2-2-nt.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 5544 
-	 Number of Cache Hits is 30319 
-	 Cache Miss Rate is 0.154588 
-
-Pipeline Performance 
-	 Total Cycles is 85925 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 5773 
-	 CPI is 2.472520 
-
-out-2-2-taken.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 5544 
-	 Number of Cache Hits is 30319 
-	 Cache Miss Rate is 0.154588 
-
-Pipeline Performance 
-	 Total Cycles is 90427 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 1271 
-	 CPI is 2.602066 
-
-out-2-4-nt.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 4422 
-	 Number of Cache Hits is 31441 
-	 Cache Miss Rate is 0.123303 
-
-Pipeline Performance 
-	 Total Cycles is 75843 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 5757 
-	 CPI is 2.182407 
-
-out-2-4-taken.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 4422 
-	 Number of Cache Hits is 31441 
-	 Cache Miss Rate is 0.123303 
-
-Pipeline Performance 
-	 Total Cycles is 80313 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 1287 
-	 CPI is 2.311032 
-
-out-4-1-nt.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 5605 
-	 Number of Cache Hits is 30258 
-	 Cache Miss Rate is 0.156289 
-
-Pipeline Performance 
-	 Total Cycles is 86436 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 5811 
-	 CPI is 2.487224 
-
-out-4-1-taken.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 5605 
-	 Number of Cache Hits is 30258 
-	 Cache Miss Rate is 0.156289 
-
-Pipeline Performance 
-	 Total Cycles is 91014 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 1233 
-	 CPI is 2.618957 
-
-out-4-2-nt.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 3445 
-	 Number of Cache Hits is 32418 
-	 Cache Miss Rate is 0.096060 
-
-Pipeline Performance 
-	 Total Cycles is 67041 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 5766 
-	 CPI is 1.929126 
-
-out-4-2-taken.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 3445 
-	 Number of Cache Hits is 32418 
-	 Cache Miss Rate is 0.096060 
-
-Pipeline Performance 
-	 Total Cycles is 71529 
-	 Total Instructions is 34752 
-	 Total Branch Instructions is 7044 
-	 Total Correct Branch Predictions is 1278 
-	 CPI is 2.058270 
-
-out-4-4-nt.txt
- Cache Performance 
-	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 1982 
-	 Number of Cache Hits is 33881 
-	 Cache Miss Rate is 0.055266 
-
-Pipeline Performance 
-	 Total Cycles is 53886 
+	 Total Cycles is 37848 
 	 Total Instructions is 34752 
 	 Total Branch Instructions is 7044 
 	 Total Correct Branch Predictions is 5754 
-	 CPI is 1.550587 
+	 CPI is 1.089088 
 
-out-4-4-taken.txt
+out-4-2-4-1
  Cache Performance 
 	 Number of Cache Accesses is 35863 
-	 Number of Cache Misses is 1982 
-	 Number of Cache Hits is 33881 
-	 Cache Miss Rate is 0.055266 
+	 Number of Cache Misses is 200 
+	 Number of Cache Hits is 35663 
+	 Cache Miss Rate is 0.005577 
 
 Pipeline Performance 
-	 Total Cycles is 58350 
+	 Total Cycles is 42312 
 	 Total Instructions is 34752 
 	 Total Branch Instructions is 7044 
 	 Total Correct Branch Predictions is 1290 
-	 CPI is 1.679040 
+	 CPI is 1.217541 
+
+out-4-4-4-0
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 78 
+	 Number of Cache Hits is 35785 
+	 Cache Miss Rate is 0.002175 
+
+Pipeline Performance 
+	 Total Cycles is 36751 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 5753 
+	 CPI is 1.057522 
+
+out-4-4-4-1
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 78 
+	 Number of Cache Hits is 35785 
+	 Cache Miss Rate is 0.002175 
+
+Pipeline Performance 
+	 Total Cycles is 41213 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 1291 
+	 CPI is 1.185917 
+
+out-5-1-4-0
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 363 
+	 Number of Cache Hits is 35500 
+	 Cache Miss Rate is 0.010122 
+
+Pipeline Performance 
+	 Total Cycles is 39309 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 5760 
+	 CPI is 1.131129 
+
+out-5-1-4-1
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 363 
+	 Number of Cache Hits is 35500 
+	 Cache Miss Rate is 0.010122 
+
+Pipeline Performance 
+	 Total Cycles is 43785 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 1284 
+	 CPI is 1.259927 
+
+out-5-2-2-0
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 357 
+	 Number of Cache Hits is 35506 
+	 Cache Miss Rate is 0.009955 
+
+Pipeline Performance 
+	 Total Cycles is 39261 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 5754 
+	 CPI is 1.129748 
+
+out-5-2-2-1
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 357 
+	 Number of Cache Hits is 35506 
+	 Cache Miss Rate is 0.009955 
+
+Pipeline Performance 
+	 Total Cycles is 43725 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 1290 
+	 CPI is 1.258201 
+
+out-5-4-2-0
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 144 
+	 Number of Cache Hits is 35719 
+	 Cache Miss Rate is 0.004015 
+
+Pipeline Performance 
+	 Total Cycles is 37345 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 5753 
+	 CPI is 1.074614 
+
+out-5-4-2-1
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 144 
+	 Number of Cache Hits is 35719 
+	 Cache Miss Rate is 0.004015 
+
+Pipeline Performance 
+	 Total Cycles is 41807 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 1291 
+	 CPI is 1.203010 
+
+out-6-1-2-0
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 502 
+	 Number of Cache Hits is 35361 
+	 Cache Miss Rate is 0.013998 
+
+Pipeline Performance 
+	 Total Cycles is 40556 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 5764 
+	 CPI is 1.167012 
+
+out-6-1-2-1
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 502 
+	 Number of Cache Hits is 35361 
+	 Cache Miss Rate is 0.013998 
+
+Pipeline Performance 
+	 Total Cycles is 45040 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 1280 
+	 CPI is 1.296041 
+
+out-6-2-1-0
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 1301 
+	 Number of Cache Hits is 34562 
+	 Cache Miss Rate is 0.036277 
+
+Pipeline Performance 
+	 Total Cycles is 47757 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 5754 
+	 CPI is 1.374223 
+
+out-6-2-1-1
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 1301 
+	 Number of Cache Hits is 34562 
+	 Cache Miss Rate is 0.036277 
+
+Pipeline Performance 
+	 Total Cycles is 52221 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 1290 
+	 CPI is 1.502676 
+
+out-6-4-1-0
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 770 
+	 Number of Cache Hits is 35093 
+	 Cache Miss Rate is 0.021471 
+
+Pipeline Performance 
+	 Total Cycles is 42979 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 5753 
+	 CPI is 1.236735 
+
+out-6-4-1-1
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 770 
+	 Number of Cache Hits is 35093 
+	 Cache Miss Rate is 0.021471 
+
+Pipeline Performance 
+	 Total Cycles is 47441 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 1291 
+	 CPI is 1.365130 
+
+out-7-1-1-0
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 1390 
+	 Number of Cache Hits is 34473 
+	 Cache Miss Rate is 0.038759 
+
+Pipeline Performance 
+	 Total Cycles is 48547 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 5765 
+	 CPI is 1.396956 
+
+out-7-1-1-1
+ Cache Performance 
+	 Number of Cache Accesses is 35863 
+	 Number of Cache Misses is 1390 
+	 Number of Cache Hits is 34473 
+	 Cache Miss Rate is 0.038759 
+
+Pipeline Performance 
+	 Total Cycles is 53033 
+	 Total Instructions is 34752 
+	 Total Branch Instructions is 7044 
+	 Total Correct Branch Predictions is 1279 
+	 CPI is 1.526042 
 
