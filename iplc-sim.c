@@ -734,23 +734,23 @@ main(int argc, char **argv)
 	int index = 10;
 	int blocksize = 1;
 	int assoc = 1;
-	/*
+
 	printf("Please enter the tracefile: ");
 	scanf("%s", trace_file_name);
-	*/
+
 	trace_file = fopen(trace_file_name, "r");
 	
 	if(!trace_file){
 		printf("fopen failed for %s file\n", trace_file_name);
 		exit(-1);
 	}
-	/*
+
 	printf("Enter Cache Size (index), Blocksize and Level of Assoc \n");
 	scanf( "%d %d %d", &index, &blocksize, &assoc );
 	
 	printf("Enter Branch Prediction: 0 (NOT taken), 1 (TAKEN): ");
 	scanf("%d", &branch_predict_taken );
-	*/
+
 	index = atoi(argv[1]);
 	blocksize = atoi(argv[2]);
 	assoc = atoi(argv[3]);
