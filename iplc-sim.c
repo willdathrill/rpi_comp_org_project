@@ -384,7 +384,7 @@ iplc_sim_push_pipeline_stage()
 	/* 2. Check for BRANCH and correct/incorrect Branch Prediction */
 	if(pipeline[DECODE].itype == BRANCH){
 		int branch_taken =
-			(pipeline[FETCH].instruction_address != pipeline[DECODE].instruction_address + 4) && (pipeline[FETCH].itype != NOP);
+			(pipeline[FETCH].instruction_address != pipeline[DECODE].instruction_address + 4) && (pipeline[FETCH].itype != NOP) && branch_predict_taken; 
 		if (branch_taken == branch_predict_taken){
 			correct_branch_predictions++;
 			// if (debug)
